@@ -1,0 +1,218 @@
+import { InputNumber, Slider } from 'antd';
+import { CutMode } from '../../common';
+import { useAppContext } from '../../contexts';
+import Step from '../Step';
+
+/**
+ * 选项
+ */
+export default function Option() {
+  const { imgWidth, imgHeight, optionConfig, setOptionConfig } = useAppContext();
+
+  const { cutMode, pixel, amount, scale, smart } = optionConfig;
+
+  const frameCls = (mode: CutMode) => `flex-1 ${cutMode === mode ? 'opacity-100' : 'opacity-30'}`;
+  const titleCls = (mode: CutMode) =>
+    `cursor-pointer mb-4 pb-2 text-center hover:text-amber-100 border-b-[2px] ${cutMode === mode ? 'border-white' : 'border-transparent'}`;
+
+  const labelCls = 'flex items-center justify-center gap-2 whitespace-nowrap flex-nowrap';
+  const ulCls = 'space-y-2';
+  const inputNumberCls = 'w-[78px]!';
+
+  return (
+    <Step step={2} title="选项">
+      <div className="flex gap-12">
+        {/* 以像素裁剪 */}
+        <div className={frameCls(CutMode.PIXEL)}>
+          <p
+            className={titleCls(CutMode.PIXEL)}
+            onClick={() => setOptionConfig({ ...optionConfig, cutMode: CutMode.PIXEL })}
+          >
+            以像素裁剪
+          </p>
+          <ul className={ulCls}>
+            <label className={labelCls}>
+              <span>宽</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                max={imgWidth}
+                step={1}
+                precision={0}
+                value={pixel.width}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    pixel: { width: value, height: pixel.height }
+                  });
+                }}
+              />
+              <span>px</span>
+            </label>
+            <label className={labelCls}>
+              <span>高</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                max={imgHeight}
+                step={1}
+                precision={0}
+                value={pixel.height}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    pixel: { width: pixel.width, height: value }
+                  });
+                }}
+              />
+              <span>px</span>
+            </label>
+          </ul>
+        </div>
+        {/* 以数量均等裁剪 */}
+        <div className={frameCls(CutMode.AMOUNT)}>
+          <p
+            className={titleCls(CutMode.AMOUNT)}
+            onClick={() => setOptionConfig({ ...optionConfig, cutMode: CutMode.AMOUNT })}
+          >
+            以数量均等裁剪
+          </p>
+          <ul className={ulCls}>
+            <label className={labelCls}>
+              <span>横向切割成</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                max={imgWidth}
+                step={1}
+                precision={0}
+                value={amount.row}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    amount: { row: value, col: amount.col }
+                  });
+                }}
+              />
+              <span>份</span>
+            </label>
+            <label className={labelCls}>
+              <span>纵向切割成</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                max={imgHeight}
+                step={1}
+                precision={0}
+                value={amount.col}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    amount: { row: amount.row, col: value }
+                  });
+                }}
+              />
+              <span>份</span>
+            </label>
+          </ul>
+        </div>
+        {/* 以比例裁剪 */}
+        <div className={frameCls(CutMode.SCALE)}>
+          <p
+            className={titleCls(CutMode.SCALE)}
+            onClick={() => setOptionConfig({ ...optionConfig, cutMode: CutMode.SCALE })}
+          >
+            以比例裁剪
+          </p>
+          <ul className={ulCls}>
+            <label className={labelCls}>
+              <span>宽</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                value={scale.width}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    scale: { width: value, height: scale.height }
+                  });
+                }}
+              />
+              <span>倍</span>
+            </label>
+            <label className={labelCls}>
+              <span>高</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={1}
+                value={scale.height}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    scale: { width: scale.width, height: value }
+                  });
+                }}
+              />
+              <span>倍</span>
+            </label>
+          </ul>
+        </div>
+        {/* 智能识别裁剪 */}
+        <div className={frameCls(CutMode.SMART)}>
+          <p
+            className={titleCls(CutMode.SMART)}
+            onClick={() => setOptionConfig({ ...optionConfig, cutMode: CutMode.SMART })}
+          >
+            智能识别裁剪
+          </p>
+          <ul className="space-y-4">
+            <label className={labelCls}>
+              <span>灵敏度</span>
+              <Slider
+                className="w-[120px]!"
+                min={0}
+                max={100}
+                value={smart.sensitivity}
+                onChange={(value) => {
+                  setOptionConfig({
+                    ...optionConfig,
+                    smart: { ...smart, sensitivity: value }
+                  });
+                }}
+              />
+              <span className="text-xs text-gray-400 w-[24px]">{smart.sensitivity}</span>
+            </label>
+            <label className={labelCls}>
+              <span>最小间隔</span>
+              <InputNumber
+                className={inputNumberCls}
+                min={4}
+                max={200}
+                step={1}
+                precision={0}
+                value={smart.minGapHeight}
+                onChange={(value) => {
+                  if (value === null) return;
+                  setOptionConfig({
+                    ...optionConfig,
+                    smart: { ...smart, minGapHeight: value }
+                  });
+                }}
+              />
+              <span>px</span>
+            </label>
+            <li className="text-xs text-gray-400 text-center pt-2">
+              自动识别图片中的空白分隔区域进行裁剪
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Step>
+  );
+}
