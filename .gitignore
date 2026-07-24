@@ -27,6 +27,9 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 
+# project doc
+PROJECT.md
+
 # OS
 .DS_Store
 Thumbs.db
