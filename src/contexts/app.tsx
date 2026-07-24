@@ -70,15 +70,9 @@ export function AppProvider(props: Props) {
         });
         break;
       case CutMode.SMART:
-        smartCut(
-          imgURL,
-          smart.sensitivity,
-          smart.minGapHeight,
-          imgFormat,
-          (imgsURL: string[]) => {
-            setCutImgsURL(imgsURL);
-          }
-        );
+        smartCut(imgURL, smart.sensitivity, imgFormat, (imgsURL: string[]) => {
+          setCutImgsURL(imgsURL);
+        });
         break;
       default:
         alert('选择裁剪方式错误');

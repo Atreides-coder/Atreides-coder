@@ -122,14 +122,12 @@ export function scaleCut(
  * 智能识别分隔线裁剪
  * @param imgURL 图片
  * @param sensitivity 灵敏度 0-100
- * @param minGapHeight 最小分隔带高度
  * @param format 裁剪后的图片格式
  * @param callback 回调函数
  */
 export function smartCut(
     imgURL: string,
     sensitivity: number,
-    minGapHeight: number,
     format: string,
     callback: Function
 ) {
@@ -145,8 +143,7 @@ export function smartCut(
                 imgSource,
                 imgWidth,
                 imgHeight,
-                sensitivity,
-                minGapHeight
+                sensitivity
             });
         })
         .catch(() => {

@@ -38,14 +38,14 @@ export default (function () {
             var imgWidth = e.data.imgWidth;
             var imgHeight = e.data.imgHeight;
             var sensitivity = e.data.sensitivity;
-            var minGapHeight = e.data.minGapHeight;
 
             // 下采样以加速扫描（缩放到约400px宽）
             var SCAN_MAX_WIDTH = 400;
             var scaleDown = Math.max(1, Math.floor(imgWidth / SCAN_MAX_WIDTH));
             var scanWidth = Math.floor(imgWidth / scaleDown);
             var scanHeight = Math.floor(imgHeight / scaleDown);
-            var scaledMinGap = Math.max(2, Math.floor(minGapHeight / scaleDown));
+            // 先用极低阈值收集所有空白带，后面自适应筛选
+            var minCollectGap = 2;
 
             // 绘制缩略图
             var scanCanvas = new OffscreenCanvas(scanWidth, scanHeight);
@@ -89,27 +89,43 @@ export default (function () {
                 gapRows.push(allColsUniform);
             }
 
-            // 将连续分隔行分组为"分隔带"
-            var gapBands = [];
+            // 第一步：用极低阈值收集所有空白带
+            var allBands = [];
             var bandStart = -1;
             for (var i = 0; i < gapRows.length; i++) {
                 if (gapRows[i]) {
                     if (bandStart === -1) bandStart = i;
                 } else {
-                    if (bandStart !== -1 && i - bandStart >= scaledMinGap) {
-                        gapBands.push({ start: bandStart, end: i });
+                    if (bandStart !== -1 && i - bandStart >= minCollectGap) {
+                        allBands.push({ start: bandStart, end: i });
                     }
                     bandStart = -1;
                 }
             }
-            if (bandStart !== -1 && gapRows.length - bandStart >= scaledMinGap) {
-                gapBands.push({ start: bandStart, end: gapRows.length });
+            if (bandStart !== -1 && gapRows.length - bandStart >= minCollectGap) {
+                allBands.push({ start: bandStart, end: gapRows.length });
             }
 
             // 忽略顶部和底部边缘的留白
             var edgeMargin = Math.floor(20 / scaleDown);
-            var validBands = gapBands.filter(function (b) {
+            allBands = allBands.filter(function (b) {
                 return b.start > edgeMargin && b.end < scanHeight - edgeMargin;
+            });
+
+            // 第二步：自适应阈值 — 以最高分隔带为基准，保留 >=35% 高度的
+            var adaptiveThreshold = minCollectGap;
+            if (allBands.length > 0) {
+                var maxHeight = 0;
+                for (var i = 0; i < allBands.length; i++) {
+                    var h = allBands[i].end - allBands[i].start;
+                    if (h > maxHeight) maxHeight = h;
+                }
+                // 阈值 = 最高带高度的35%，但至少2px
+                adaptiveThreshold = Math.max(minCollectGap, Math.floor(maxHeight * 0.35));
+            }
+
+            var validBands = allBands.filter(function (b) {
+                return (b.end - b.start) >= adaptiveThreshold;
             });
 
             // 计算切点

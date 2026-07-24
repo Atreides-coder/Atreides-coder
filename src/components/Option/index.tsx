@@ -188,27 +188,9 @@ export default function Option() {
               />
               <span className="text-xs text-gray-400 w-[24px]">{smart.sensitivity}</span>
             </label>
-            <label className={labelCls}>
-              <span>最小间隔</span>
-              <InputNumber
-                className={inputNumberCls}
-                min={4}
-                max={200}
-                step={1}
-                precision={0}
-                value={smart.minGapHeight}
-                onChange={(value) => {
-                  if (value === null) return;
-                  setOptionConfig({
-                    ...optionConfig,
-                    smart: { ...smart, minGapHeight: value }
-                  });
-                }}
-              />
-              <span>px</span>
-            </label>
-            <li className="text-xs text-gray-400 text-center pt-2">
-              自动识别图片中的空白分隔区域进行裁剪
+            <li className="text-xs text-gray-400 text-center pt-2 leading-relaxed">
+              自适应阈值算法 — 自动区分内容留白与分屏间隔<br />
+              灵敏度越高越容易识别浅色/窄分隔
             </li>
           </ul>
         </div>

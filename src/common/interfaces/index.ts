@@ -23,7 +23,7 @@ export interface OptionConfig {
     /**
      * 智能识别
      */
-    smart: { sensitivity: number; minGapHeight: number };
+    smart: { sensitivity: number };
 }
 
 /**
